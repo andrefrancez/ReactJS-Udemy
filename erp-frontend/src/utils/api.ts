@@ -1,5 +1,6 @@
 import axios, { AxiosError } from "axios"
 import { ApiError } from "src/models/Api"
+import { handleGetAccessToken } from "./auth"
 
 const BASE_URL = 'http://localhost:8000/api/v1'
 
@@ -12,13 +13,20 @@ export const useApi = async <TypeDataResponse>(
     data?: TypeDataResponse,
     detail: string
 }> => {
-    // Futura lógica de autenticação
+    // lógica de autenticação
+    const access_token = handleGetAccessToken()
+
+    let headers = {}
+    if(withAuth && access_token){
+        headers['Authorization'] = `Bearer ${access_token}`
+    }
 
     try {
         const request = await axios(`${BASE_URL}/${endpoint}`, {
             method,
             data: method != 'GET' && data,
             params: method == 'GET' && data,
+            headers
         })
 
         return {
